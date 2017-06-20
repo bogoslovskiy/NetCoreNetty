@@ -1,0 +1,22 @@
+﻿<Properties StartupConfiguration="{73579F5E-6632-4BA4-A0C6-368BC803FDC4}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="NetCoreNetty.Handlers/Http/WebSockets/FastHttpWebSocketHandshakeHandler.cs">
+    <Files>
+      <File FileName="NetCoreNetty.Handlers/Http/WebSockets/FastHttpWebSocketHandshakeHandler.cs" Line="63" Column="26" />
+      <File FileName="NetCoreNetty.Handlers/ByteMessageHandler.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
+    <Watch file="NetCoreNetty.Buffers/Unmanaged/UnmanagedByteBuf2.cs" line="316" offsetX="503" offsetY="4678" expression="state" liveUpdate="False" />
+    <Watch file="NetCoreNetty.Buffers/Unmanaged/UnmanagedByteBufManager2.cs" line="46" offsetX="643" offsetY="636" expression="dataPtr" liveUpdate="False" />
+    <Watch file="NetCoreNetty.Buffers/Unmanaged/UnmanagedByteBufManager2.cs" line="46" offsetX="639" offsetY="672" expression="memSegPtr" liveUpdate="False" />
+    <Watch file="NetCoreNetty.Handlers/Http/WebSockets/Match/HttpMatcher.cs" line="95" offsetX="465" offsetY="1410" expression="localNextStep" liveUpdate="False" />
+    <Watch file="NetCoreNetty.Handlers/Http/WebSockets/Match/HttpMatcher.cs" line="99" offsetX="357" offsetY="1456" expression="nextStep" liveUpdate="False" />
+    <Watch file="NetCoreNetty.Handlers/Http/WebSockets/Match/HttpMatcher.cs" line="100" offsetX="685" offsetY="1521" expression="_state" liveUpdate="False" />
+  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.NetCoreNetty.Sandbox PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
