@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <DebugType>portable</DebugType>
+    <AssemblyName>NetCoreNetty.Handlers</AssemblyName>
+    <PackageId>NetCoreNetty.Handlers</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../NetCoreNetty.Codecs/NetCoreNetty.Codecs.csproj" />
+    <ProjectReference Include="../NetCoreNetty.Channels/NetCoreNetty.Channels.csproj" />
+    <ProjectReference Include="..\NetCoreNetty.Buffers\NetCoreNetty.Buffers.csproj">
+    </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Core\NetCoreNetty.Core.csproj">
+    </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Utils\NetCoreNetty.Utils.csproj">
+    </ProjectReference>
+  </ItemGroup>
+</Project>

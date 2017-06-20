@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.6" />
+    <PackageReference Include="BenchmarkDotNet.Core" Version="0.10.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BenchmarkDotNet.Artifacts\results" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetCoreNetty.Buffers\NetCoreNetty.Buffers.csproj">
+    </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Codecs\NetCoreNetty.Codecs.csproj">
+    </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Handlers\NetCoreNetty.Handlers.csproj">
+    </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Utils\NetCoreNetty.Utils.csproj">
+    </ProjectReference>
+  </ItemGroup>
+</Project>

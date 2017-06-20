@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>WebSocketHandshakeBench</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.3.0, OS=OSX
+Processor=Intel(R) Core(TM) i7-4770HQ CPU 2.20GHz, ProcessorCount=8
+Frequency=1000000000 Hz, Resolution=1.0000 ns, Timer=UNKNOWN
+dotnet cli version=1.0.1
+  [Host]     : .NET Core 4.6.25009.03, 64bit RyuJIT
+  DefaultJob : .NET Core 4.6.25009.03, 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>    Mean</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>Fast</td><td>17.7902 ns</td><td>0.3832 ns</td>
+</tr><tr><td>Old2</td><td>14,193.0784 ns</td><td>333.0168 ns</td>
+</tr></tbody></table>
+</body>
+</html>

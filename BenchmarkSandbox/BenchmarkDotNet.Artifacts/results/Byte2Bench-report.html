@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Byte2Bench</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.3.0, OS=OSX
+Processor=Intel(R) Core(TM) i7-4770HQ CPU 2.20GHz, ProcessorCount=8
+Frequency=1000000000 Hz, Resolution=1.0000 ns, Timer=UNKNOWN
+dotnet cli version=1.0.1
+  [Host] : .NET Core 4.6.25009.03, 64bit RyuJIT
+  Core   : .NET Core 4.6.25009.03, 64bit RyuJIT
+</code></pre>
+<pre><code>Job=Core  Runtime=Core  
+</code></pre>
+
+<table>
+<thead><tr><th>   Method</th><th>Mean</th><th>StdErr</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>ClrBytes2</td><td>7.1742 ns</td><td>0.0880 ns</td><td>0.4900 ns</td>
+</tr><tr><td>UnsafeBytes2</td><td>9.1925 ns</td><td>0.1082 ns</td><td>0.4589 ns</td>
+</tr><tr><td>BitBytesSergey2</td><td>1.5472 ns</td><td>0.0195 ns</td><td>0.0757 ns</td>
+</tr><tr><td>ClrBytes4</td><td>7.3358 ns</td><td>0.0496 ns</td><td>0.1920 ns</td>
+</tr><tr><td>UnsafeBytes4</td><td>7.6596 ns</td><td>0.0491 ns</td><td>0.1900 ns</td>
+</tr><tr><td>BitBytesSergey4</td><td>2.9156 ns</td><td>0.0129 ns</td><td>0.0500 ns</td>
+</tr><tr><td>ClrBytes8</td><td>9.6935 ns</td><td>0.0600 ns</td><td>0.2325 ns</td>
+</tr><tr><td>UnsafeBytes8</td><td>9.6479 ns</td><td>0.0472 ns</td><td>0.1827 ns</td>
+</tr><tr><td>BitBytesSergey8</td><td>6.7336 ns</td><td>0.0298 ns</td><td>0.1153 ns</td>
+</tr></tbody></table>
+</body>
+</html>
