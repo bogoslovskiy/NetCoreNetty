@@ -29,6 +29,7 @@ namespace NetCoreNetty.Handlers
 		        _cumulatedByteBuf = null;
 	        }
 
+	        // Читаем.
 	        Read(ctx, byteBuf);
 
 	        // Если буфер не освобожден и в нем есть данные для чтения, 
