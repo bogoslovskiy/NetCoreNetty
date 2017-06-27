@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using NetCoreNetty.Utils;
 
 namespace NetCoreNetty.Buffers.Unmanaged
 {
+    // TODO: добавить и прописать нормальные типы исключений
     public class UnmanagedByteBuf : ByteBuf, IUnmanagedByteBuf
     {
         private struct State
@@ -103,7 +105,8 @@ namespace NetCoreNetty.Buffers.Unmanaged
             }
         }
 
-        private readonly IByteBufAllocator _allocator;
+        // TODO: заменить на интерфейс? 
+        private readonly UnmanagedByteBufAllocator _allocator;
 
         private IntPtr _memSegPtr;
         private int _memSegSize;
@@ -117,15 +120,30 @@ namespace NetCoreNetty.Buffers.Unmanaged
         private int _globalReaded;
         private int _globalWrited;
 
-        public UnmanagedByteBuf(IByteBufAllocator allocator)
+        private bool _released;
+
+        public override bool Released => _released;
+        
+        public UnmanagedByteBuf(UnmanagedByteBufAllocator allocator)
         {
             _allocator = allocator;
         }
 
-        // TODO: release прямо здесь
-        public IntPtr GetMemSegPtr()
+        ~UnmanagedByteBuf()
         {
-            return _memSegPtr;
+            // Пул объектов такого типа должен быть устроен таким образом,
+            // чтобы не хранить ссылку на отданный объект.
+            // Таким образом, если текущий объект забыли отдать в пул, не должно быть
+            // ссылок на него, чтобы сборщик его почистил, а при финализации объект мог
+            // отдать неуправляемый ресурс обратно в пул.
+            
+            // Если "какой-то" сторонний объект не отдал данный объект в пул удерживает ссылку на него, то
+            // мы не можем контролировать такие утечки, они полностью на совести "стороннего" кода.
+            
+            // Возвращаем куски памяти из неуправляемой кучи в пул.
+            ReleaseMemorySegments();
+            
+            // Сам объект в пул вернуть не можем, т.к. он уничтожается сборщиком.
         }
 
         public void Attach(IntPtr memSeg)
@@ -141,6 +159,7 @@ namespace NetCoreNetty.Buffers.Unmanaged
             _memSegWriteIndex = -1;
             _globalReaded = 0;
             _globalWrited = 0;
+            _released = false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -172,18 +191,40 @@ namespace NetCoreNetty.Buffers.Unmanaged
 
             _lastMemSegPtr = appendixLastMemSegPtr;
             _globalWrited += unmanagedByteBuf._globalWrited;
+            
+            // Т.к. мы все забрали у присоединяемого буфера, то буфер как обертка больше не нужен.
+            // Освобождаем его.
+            unmanagedByteBuf.ReleaseCore();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Release()
         {
-            _allocator.Release(this);
+            // Разбор (можно называть это деконструкцией) объекта и возврат в пул его составляющих осуществляет
+            // сам объект. Пул должен принимать только те куски на возврат, что ему отдают.
+            
+            // Возвращаем куски памяти из неуправляемой кучи в пул.
+            ReleaseMemorySegments();
+
+            ReleaseCore();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ReleaseReaded()
         {
-            throw new NotImplementedException();
+            // Вычисляем, начиная с какого сегмента можно освободить прочитанную цепочку сегментов.
+            // Тут возможны 2 варианта:
+            // - Весь буфер уже прочитан, тогда можно освободить все.
+            // - Буфер прочитан не полностью, тогда можно освободить все предыдущие, а текущий оставить.
+            
+            // Сценарий с освобождением всей цепочки требует более тщательной реализации и пока невозможен,
+            // поэтому всегда будем освобождать только начиная с предыдущего.
+            // Дело в том, что у буфера пока не может не быть какого-то сегмента, а при освобождении всех именно так
+            // и получится, но сам буфер может использоваться для аккумуляции дальше. Будет реализовано потом, если
+            // потребуется.
+
+            IntPtr memSegPtr = MemorySegment.GetPrev(_memSegPtr);
+            ReleaseMemorySegmentsAt(memSegPtr);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,6 +241,7 @@ namespace NetCoreNetty.Buffers.Unmanaged
 
             if (_memSegReadIndex < -1)
             {
+                // TODO: могли откатиться на несколько сегментов назад
                 SwitchToPrev();
             }
         }
@@ -218,39 +260,113 @@ namespace NetCoreNetty.Buffers.Unmanaged
             return _memSegDataPtr[_memSegReadIndex];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override short ReadShort()
         {
-            throw new NotImplementedException();
+            byte b1 = ReadByte();
+            byte b2 = ReadByte();
+
+            return ByteConverter.GetShort(b1, b2);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override ushort ReadUShort()
         {
-            throw new NotImplementedException();
+            byte b1 = ReadByte();
+            byte b2 = ReadByte();
+
+            return ByteConverter.GetUShort(b1, b2);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int ReadInt()
         {
-            throw new NotImplementedException();
+            byte b1 = ReadByte();
+            byte b2 = ReadByte();
+            byte b3 = ReadByte();
+            byte b4 = ReadByte();
+
+            return ByteConverter.GetInt(b1, b2, b3, b4);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override uint ReadUInt()
         {
-            throw new NotImplementedException();
+            byte b1 = ReadByte();
+            byte b2 = ReadByte();
+            byte b3 = ReadByte();
+            byte b4 = ReadByte();
+
+            return ByteConverter.GetUInt(b1, b2, b3, b4);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override long ReadLong()
         {
-            throw new NotImplementedException();
+            byte b1 = ReadByte();
+            byte b2 = ReadByte();
+            byte b3 = ReadByte();
+            byte b4 = ReadByte();
+            byte b5 = ReadByte();
+            byte b6 = ReadByte();
+            byte b7 = ReadByte();
+            byte b8 = ReadByte();
+
+            return ByteConverter.GetLong(b1, b2, b3, b4, b5, b6, b7, b8);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override ulong ReadULong()
         {
-            throw new NotImplementedException();
+            byte b1 = ReadByte();
+            byte b2 = ReadByte();
+            byte b3 = ReadByte();
+            byte b4 = ReadByte();
+            byte b5 = ReadByte();
+            byte b6 = ReadByte();
+            byte b7 = ReadByte();
+            byte b8 = ReadByte();
+
+            return ByteConverter.GetULong(b1, b2, b3, b4, b5, b6, b7, b8);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int ReadToOrRollback(byte stopByte, byte[] output, int startIndex, int len)
         {
-            throw new NotImplementedException();
+            bool stopByteMatched = false;
+
+            int readed = 0;
+
+            State state = GetState();
+
+            while (state.RemainBytes() > 0)
+            {
+                byte currentByte = state.ReadByte();
+
+                if (currentByte == stopByte)
+                {
+                    stopByteMatched = true;
+                    break;
+                }
+
+                output[startIndex] = currentByte;
+                readed++;
+                startIndex++;
+
+                if (startIndex == len)
+                {
+                    throw new Exception();
+                }
+            }
+
+            if (stopByteMatched)
+            {
+                state.Back(1);
+                SetState(state);
+                return readed;
+            }
+
+            return -1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -305,7 +421,37 @@ namespace NetCoreNetty.Buffers.Unmanaged
 
         public override int SkipTo(byte stopByte, bool include)
         {
-            throw new NotImplementedException();
+            int skipped = 0;
+
+            bool stopByteMatched = false;
+
+            State state = GetState();
+
+            while (state.RemainBytes() > 0)
+            {
+                skipped++;
+                byte currentByte = state.ReadByte();
+
+                if (currentByte == stopByte)
+                {
+                    stopByteMatched = true;
+                    break;
+                }
+            }
+
+            if (stopByteMatched)
+            {
+                if (!include)
+                {
+                    skipped -= 1;
+                    state.Back(1);
+                }
+
+                SetState(state);
+                return skipped;
+            }
+
+            return -1;
         }
 
         public override int SkipTo(byte stopByte1, byte stopByte2, bool include)
@@ -438,10 +584,59 @@ namespace NetCoreNetty.Buffers.Unmanaged
             _memSegSize = MemorySegment.GetUsed(_memSegPtr);
             _memSegDataPtr = (byte*) (void*) MemorySegment.GetDataPtr(_memSegPtr);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ReleaseCore()
+        {
+            // Инициализируем поля пустыми значениями.
+            Clear();
+            
+            // Теперь возвращем в пул сам объект.
+            _allocator.Release(this);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ReleaseMemorySegments()
+        {
+            // Для освобождения всей цепочки сегментов памяти указываем стартовый сегмент - последний.
+            ReleaseMemorySegmentsAt(_lastMemSegPtr);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ReleaseMemorySegmentsAt(IntPtr memSegPtr)
+        {
+            // Проходим от указанного сегмента по связям с предыдущими.
+            while (memSegPtr != IntPtr.Zero)
+            {
+                IntPtr releaseMemSegPtr = memSegPtr;
+                memSegPtr = MemorySegment.GetPrev(releaseMemSegPtr);
+                
+                _allocator.Release(releaseMemSegPtr);
+            }
+        }
 
-		public override string Dump()
-		{
-			throw new NotImplementedException();
-		}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Clear()
+        {
+            _memSegPtr = IntPtr.Zero;
+            _lastMemSegPtr = IntPtr.Zero;
+            unsafe
+            {
+                _memSegDataPtr = (byte*) (void*) IntPtr.Zero;;
+            }
+            _memSegSize = 0;
+            _memSegReadIndex = -1;
+            _memSegWriteIndex = -1;
+            _globalReaded = 0;
+            _globalWrited = 0;
+            
+            // Обязательно устанавливаем флаг, указывающий на то, что буфер больше нельзя использовать.
+            _released = true;
+        }
+
+        public override string Dump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

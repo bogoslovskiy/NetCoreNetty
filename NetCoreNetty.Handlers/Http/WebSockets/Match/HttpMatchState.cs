@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace NetCoreNetty.Handlers.Http.WebSockets.Match
 {

@@ -42,6 +42,7 @@ namespace NetCoreNetty.Handlers.Http.WebSockets.Match
                 return;
             }
 
+            // TODO: нормальные исключения
             if (nextByte1 == HttpHeaderConstants.CR && nextByte2 != HttpHeaderConstants.LF)
             {
                 throw new Exception();

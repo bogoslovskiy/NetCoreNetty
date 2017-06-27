@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace NetCoreNetty.Buffers
+﻿namespace NetCoreNetty.Buffers
 {
     abstract public class ByteBuf
     {
+        abstract public bool Released { get; }
+        
         abstract public string Dump();
         
         abstract public void Append(ByteBuf byteBuf);
@@ -36,7 +36,6 @@ namespace NetCoreNetty.Buffers
             int startIndex,
             int len);
 
-        // TODO: stopChar?
         abstract public int ReadToOrRollback(
             byte stopByte1,
             byte stopByte2,

@@ -4,11 +4,10 @@ using NetCoreNetty.Core;
 
 namespace NetCoreNetty.Codecs
 {
-    // TODO: здесь утечка. буфер не освобождается и не освобождается его IntPtr ресурс.
     abstract public class ByteToMessageDecoder<T> : ChannelHandlerBase
         where T : class
     {
-        private ByteBuf _cumulatedByteBuf = null;
+        private ByteBuf _cumulatedByteBuf;
 
         public sealed override void Read(IChannelHandlerContext ctx, object input)
         {
@@ -20,13 +19,10 @@ namespace NetCoreNetty.Codecs
             ByteBuf byteBuf = input as ByteBuf;
             if (byteBuf == null)
             {
-                throw new InvalidOperationException();
+                throw new ArgumentException("Message is not ByteBuf.");
             }
 
-            // Если ранее буфер не был освобожден, значит вновь пришедший буфер нужно склеить с предыдущим.
-
-            T message = null;
-
+            // Объединяем буферы, если предыдущий буфер не был прочитан до конца.
             if (_cumulatedByteBuf != null)
             {
                 _cumulatedByteBuf.Append(byteBuf);
@@ -34,10 +30,14 @@ namespace NetCoreNetty.Codecs
                 _cumulatedByteBuf = null;
             }
 
+            // Пока декодер возвращает объект и в буфере есть данные для чтения, есть возможность декодировать следующий
+            // объект.
+            // Если же декодер не вернул объект или буфер опустошен, то декодирование можно прервать до поступления
+            // следующей порции данных для обработки в новом буфере.
+            T message;
             do
             {
                 message = DecodeOne(ctx, byteBuf);
-
                 if (message != null)
                 {
                     ctx.Read(message);
@@ -45,16 +45,12 @@ namespace NetCoreNetty.Codecs
             }
             while (message != null && byteBuf.ReadableBytes() > 0);
 
-            // TODO: проверять, что буфер не Released
-            if (byteBuf.ReadableBytes() > 0)
+            // Если буфер не освобожден и в нем есть данные для чтения, 
+            // буфер должен объединиться со следующим буфером.
+            if (!byteBuf.Released && byteBuf.ReadableBytes() > 0)
             {
                 _cumulatedByteBuf = byteBuf;
             }
-
-            // За освобождение буфера должна отвечать логика метода Decode.
-            // Например, освобождать прочитанное. Тогда, если буфер считан полностью, то он освободится в пул,
-            // иначе освободится (если это возможно) прочитанная часть буфера, а оставшаяся пойдет в аккумуляцию
-            // с вновь приходящими буферами.
         }
 
         abstract protected T DecodeOne(IChannelHandlerContext ctx, ByteBuf byteBuf);

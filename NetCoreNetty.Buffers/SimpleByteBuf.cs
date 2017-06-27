@@ -240,6 +240,8 @@ namespace NetCoreNetty.Buffers
             _bytes[_currentWriteIndex] = @byte;
         }
 
+        public override bool Released { get; }
+
         public override string Dump()
         {
             throw new NotImplementedException();

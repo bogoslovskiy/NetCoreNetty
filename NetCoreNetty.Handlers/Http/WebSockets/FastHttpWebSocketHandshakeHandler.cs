@@ -38,7 +38,9 @@ namespace NetCoreNetty.Handlers.Http.WebSockets
 
                 if (continueMatching)
                 {
-                    // TODO: освобождаем прочитанную часть
+                    #error !!!
+                    // Как минимум мы можем освободить прочитанную часть.
+                    //byteBuf.ReleaseReaded();
                     return;
                 }
 
@@ -94,13 +96,13 @@ namespace NetCoreNetty.Handlers.Http.WebSockets
         private bool HandshakeMatched(HttpMatchState state)
         {
             return
-                state.ConnectionHeaderMatched &&
-                state.ConnectionHeaderValueMatched &&
-                state.UpgradeHeaderMatched &&
-                state.UpgradeHeaderValueMatched &&
-                state.SecWebSocketVersionHeaderMatched &&
-                state.SecWebSocketVersionHeaderValueMatched &&
-                state.SecWebSocketKeyHeaderMatched &&
+                state.ConnectionHeaderMatched &
+                state.ConnectionHeaderValueMatched &
+                state.UpgradeHeaderMatched &
+                state.UpgradeHeaderValueMatched &
+                state.SecWebSocketVersionHeaderMatched &
+                state.SecWebSocketVersionHeaderValueMatched &
+                state.SecWebSocketKeyHeaderMatched &
                 state.SecWebSocketKeyHeaderValueMatched;
         }
     }

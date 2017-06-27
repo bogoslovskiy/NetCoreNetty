@@ -5,26 +5,21 @@ using System.Runtime.InteropServices;
 
 namespace NetCoreNetty.Buffers.Unmanaged
 {
-    // TODO: проверить утечки, если стопнуть процесс dotnet - утечет ли память по выделенным сегментам.
+    // TODO: Выделять один большой сегмент памяти и из него раздавать нужные сегменты
     public class UnmanagedByteBufAllocator : IUnmanagedByteBufAllocator
     {
         static private readonly int _memSegHeaderSize = MemorySegment.HeaderSize;
         static public readonly int DefaultBufSize;
 
         // TODO: реализовать вменяемый пулинг
+        // Чтобы минимизировать кэшмисы в процессоре, нужно чтобы сегменты памяти были максимально близко друг к другу.
         private readonly ConcurrentQueue<IntPtr> _defaultMemorySegments = new ConcurrentQueue<IntPtr>();
         private readonly ConcurrentQueue<ByteBuf> _byteBufs = new ConcurrentQueue<ByteBuf>();
 
         static UnmanagedByteBufAllocator()
         {
             // TODO: поэкспериментировать
-            DefaultBufSize = 256;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReleaseDefaultPtr(IntPtr ptr)
-        {
-            _defaultMemorySegments.Enqueue(ptr);
+            DefaultBufSize = 192;
         }
 
         public ByteBuf GetDefault()
@@ -69,13 +64,14 @@ namespace NetCoreNetty.Buffers.Unmanaged
             throw new NotImplementedException();
         }
 
-        public void Release(ByteBuf buf)
+        internal void Release(IntPtr memSegPtr)
         {
-            // TODO: здесь утечка. буфер может быть кумулятивным. тогда надо освобождать все сегменты.
-            IntPtr memSegPtr = ((UnmanagedByteBuf) buf).GetMemSegPtr();
-            ReleaseDefaultPtr(memSegPtr);
-
-            _byteBufs.Enqueue(buf);
+            _defaultMemorySegments.Enqueue(memSegPtr);
+        }
+        
+        internal void Release(UnmanagedByteBuf unmanagedByteBuf)
+        {
+            _byteBufs.Enqueue(unmanagedByteBuf);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

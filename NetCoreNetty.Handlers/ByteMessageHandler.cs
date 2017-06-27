@@ -4,19 +4,24 @@ using NetCoreNetty.Core;
 
 namespace NetCoreNetty.Handlers
 {
-	// TODO: здесь утечка
     abstract public class ByteMessageHandler : ChannelHandlerBase
     {
-	    private ByteBuf _cumulatedByteBuf = null;
+	    private ByteBuf _cumulatedByteBuf;
         
         public sealed override void Read(IChannelHandlerContext ctx, object message)
         {
+	        if (message == null)
+	        {
+		        throw new ArgumentNullException(nameof(message));
+	        }
+	        
 			ByteBuf byteBuf = message as ByteBuf;
 			if (byteBuf == null)
 			{
-				throw new InvalidOperationException();
+				throw new ArgumentException("Message is not ByteBuf.");
 			}
 
+	        // Объединяем буферы, если предыдущий буфер не был прочитан до конца.
 	        if (_cumulatedByteBuf != null)
 	        {
 		        _cumulatedByteBuf.Append(byteBuf);
@@ -26,16 +31,12 @@ namespace NetCoreNetty.Handlers
 
 	        Read(ctx, byteBuf);
 
-	        // TODO: проверять, что буфер не Released
-	        if (byteBuf.ReadableBytes() > 0)
+	        // Если буфер не освобожден и в нем есть данные для чтения, 
+	        // буфер должен объединиться со следующим буфером.
+	        if (!byteBuf.Released && byteBuf.ReadableBytes() > 0)
 	        {
 		        _cumulatedByteBuf = byteBuf;
 	        }
-
-	        // За освобождение буфера должна отвечать логика метода Decode.
-	        // Например, освобождать прочитанное. Тогда, если буфер считан полностью, то он освободится в пул,
-	        // иначе освободится (если это возможно) прочитанная часть буфера, а оставшаяся пойдет в аккумуляцию
-	        // с вновь приходящими буферами.
         }
 
 	    abstract protected void Read(IChannelHandlerContext ctx, ByteBuf byteBuf);
