@@ -38,9 +38,8 @@ namespace NetCoreNetty.Handlers.Http.WebSockets
 
                 if (continueMatching)
                 {
-                    #error !!!
                     // Как минимум мы можем освободить прочитанную часть.
-                    //byteBuf.ReleaseReaded();
+                    byteBuf.ReleaseReaded();
                     return;
                 }
 

@@ -224,6 +224,10 @@ namespace NetCoreNetty.Buffers.Unmanaged
             // потребуется.
 
             IntPtr memSegPtr = MemorySegment.GetPrev(_memSegPtr);
+            
+            // Отвязываем от текущего.
+            MemorySegment.SetPrev(_memSegPtr, IntPtr.Zero);
+            
             ReleaseMemorySegmentsAt(memSegPtr);
         }
 
@@ -610,6 +614,10 @@ namespace NetCoreNetty.Buffers.Unmanaged
             {
                 IntPtr releaseMemSegPtr = memSegPtr;
                 memSegPtr = MemorySegment.GetPrev(releaseMemSegPtr);
+                
+                // Чистим связи с другими сегментами.
+                MemorySegment.SetPrev(releaseMemSegPtr, IntPtr.Zero);
+                MemorySegment.SetNext(releaseMemSegPtr, IntPtr.Zero);
                 
                 _allocator.Release(releaseMemSegPtr);
             }
