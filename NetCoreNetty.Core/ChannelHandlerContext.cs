@@ -5,12 +5,12 @@ namespace NetCoreNetty.Core
 {
     internal class ChannelHandlerContext : IChannelHandlerContext
     {
-        internal ChannelHandlerContext Next;
-        internal ChannelHandlerContext Prev;
-
         private IChannel _channel;
         private IChannelHandler _handler;
-        private IChannelPipeline _pipeline;
+        private IChannelPipelineInternal _pipeline;
+        
+        internal ChannelHandlerContext Next;
+        internal ChannelHandlerContext Prev;
 
         public IChannel Channel => _channel;
 
@@ -26,7 +26,7 @@ namespace NetCoreNetty.Core
             string name,
             IChannel channel,
             IChannelHandler handler,
-            IChannelPipeline pipeline)
+            IChannelPipelineInternal pipeline)
         {
             this.Name = name;
             _channel = channel;
@@ -48,12 +48,12 @@ namespace NetCoreNetty.Core
         {
             try
             {
-                _handler.Read(this, message);
+                _pipeline.Executor.Run(InvokeReadWithLock, message);
             }
             catch (Exception ex)
             {
+                // TODO:
                 Console.WriteLine(ex);
-                throw;
             }
         }
 
@@ -61,12 +61,50 @@ namespace NetCoreNetty.Core
         {
             try
             {
+                _pipeline.Executor.Run(InvokeWriteWithLock, message);
+            }
+            catch (Exception ex)
+            {
+                // TODO:
+                Console.WriteLine(ex);
+            }
+        }
+
+        private void InvokeReadWithLock(object message)
+        {
+            _pipeline.EnterInbound();
+
+            try
+            {
+                _handler.Read(this, message);
+            }
+            catch (Exception ex)
+            {
+                // TODO:
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                _pipeline.ExitInbound();
+            }
+        }
+        
+        private void InvokeWriteWithLock(object message)
+        {
+            _pipeline.EnterOutbound();
+
+            try
+            {
                 _handler.Write(this, message);
             }
             catch (Exception ex)
             {
+                // TODO:
                 Console.WriteLine(ex);
-                throw;
+            }
+            finally
+            {
+                _pipeline.ExitOutbound();
             }
         }
 
@@ -85,7 +123,7 @@ namespace NetCoreNetty.Core
             // TODO: освобождение предыдущих, если пулится
             Link(ctx.Prev, ctx.Next);
         }
-
+        
         private void Link(ChannelHandlerContext prev, ChannelHandlerContext next)
         {
             Prev = prev;

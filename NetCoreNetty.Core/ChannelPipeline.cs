@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using NetCoreNetty.Buffers;
 
 namespace NetCoreNetty.Core
 {
-    internal class ChannelPipeline : IChannelPipeline
+    internal class ChannelPipeline : IChannelPipelineInternal
     {
         class TerminatorChannelHandler : ChannelHandlerBase
         {
@@ -24,16 +25,122 @@ namespace NetCoreNetty.Core
         }
 
         private IChannel _channel;
-
+        private IExecutor _executor;
         private ChannelHandlerContext _terminatorHandlerContext;
+        
+        private int _inboundThreadId = -1;
+        private int _outboundThreadId = -1;
+        
+        public IExecutor Executor => _executor;
 
-        public ChannelPipeline(IChannel channel)
+        public ChannelPipeline(
+            IChannel channel,
+            IExecutor executor)
         {
             _channel = channel;
+            _executor = executor;
             _terminatorHandlerContext = CreateContext(
                 "_firstHandlerContext",
                 new TerminatorChannelHandler()
             );
+        }
+        
+        public void EnterInbound()
+        {
+            // Блокировку в любом случае надо взять.
+            while (true)
+            {
+                // Неблокирующая синхронизация.
+                // Устанавливаем текущий поток, если inbound поток не установлен (-1).
+                int inboundThreadId = Interlocked.CompareExchange(
+                    ref _inboundThreadId,
+                    Thread.CurrentThread.ManagedThreadId,
+                    -1
+                );
+            
+                // Если inboundThreadId (старое значение перед попыткой установки)
+                // равен -1, то мы установили текущий поток владельцем блокировки,
+                // если значение равно идентификатору текущего потока, то значение было установлено раньше и 
+                // текущий поток итак был владельцем.
+                if (inboundThreadId == -1 | inboundThreadId == Thread.CurrentThread.ManagedThreadId)
+                {
+                    // Текущий поток либо итак владелец блокировки, либо взял блокировку.
+                    return;
+                }
+                
+                // Засыпаем, если не удалось взять блокировку. Т.к. мы не знаем, когда блокировка освободится,
+                // спать будем недолго, чтобы как можно быстрее взять блокировку при первой же возможности.
+                // TODO: возможно нужен свой CustomSpinWait, где вести статистику ожидания и менять время засыпания.
+                // TODO: стандартный SpinWait тут не подходит, т.к. он делает Thread.Yield, 
+                // TODO: что означает передачу управления другому потоку, что недопустимо
+                Thread.Sleep(0);
+            }
+        }
+
+        public void ExitInbound()
+        {
+            // Неблокирующая синхронизация.
+            // Устанавливаем inbound поток в -1, если он был равен текущему.
+            int inboundThreadId = Interlocked.CompareExchange(
+                ref _inboundThreadId,
+                -1,
+                Thread.CurrentThread.ManagedThreadId
+            );
+            
+            // Если была попытка выйти из блокировки, не владея ей, кидаем исключение.
+            if (inboundThreadId != Thread.CurrentThread.ManagedThreadId)
+            {
+                throw new InvalidOperationException("Current thread is not owner of read lock.");
+            }
+        }
+
+        public void EnterOutbound()
+        {
+            // Блокировку в любом случае надо взять.
+            while (true)
+            {
+                // Неблокирующая синхронизация.
+                // Устанавливаем текущий поток, если inbound поток не установлен (-1).
+                int outboundThreadId = Interlocked.CompareExchange(
+                    ref _outboundThreadId,
+                    Thread.CurrentThread.ManagedThreadId,
+                    -1
+                );
+            
+                // Если outboundThreadId (старое значение перед попыткой установки)
+                // равен -1, то мы установили текущий поток владельцем блокировки,
+                // если значение равно идентификатору текущего потока, то значение было установлено раньше и 
+                // текущий поток итак был владельцем.
+                if (outboundThreadId == -1 | outboundThreadId == Thread.CurrentThread.ManagedThreadId)
+                {
+                    // Текущий поток либо итак владелец блокировки, либо взял блокировку.
+                    return;
+                }
+                
+                // Засыпаем, если не удалось взять блокировку. Т.к. мы не знаем, когда блокировка освободится,
+                // спать будем недолго, чтобы как можно быстрее взять блокировку при первой же возможности.
+                // TODO: возможно нужен свой CustomSpinWait, где вести статистику ожидания и менять время засыпания.
+                // TODO: стандартный SpinWait тут не подходит, т.к. он делает Thread.Yield, 
+                // TODO: что означает передачу управления другому потоку, что недопустимо
+                Thread.Sleep(0);
+            }
+        }
+
+        public void ExitOutbound()
+        {
+            // Неблокирующая синхронизация.
+            // Устанавливаем outbound поток в -1, если он был равен текущему.
+            int outboundThreadId = Interlocked.CompareExchange(
+                ref _outboundThreadId,
+                -1,
+                Thread.CurrentThread.ManagedThreadId
+            );
+            
+            // Если была попытка выйти из блокировки, не владея ей, кидаем исключение.
+            if (outboundThreadId != Thread.CurrentThread.ManagedThreadId)
+            {
+                throw new InvalidOperationException("Current thread is not owner of write lock.");
+            }
         }
 
         public void StartReceiving()
