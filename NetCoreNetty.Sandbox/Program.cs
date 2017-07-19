@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NetCoreNetty.Buffers.Unmanaged;
 using NetCoreNetty.Channels;
 using NetCoreNetty.Codecs.WebSockets;
+using NetCoreNetty.Concurrency.Blocking;
 using NetCoreNetty.Core;
 using NetCoreNetty.Handlers.Http.WebSockets;
 
@@ -92,9 +95,18 @@ namespace NetCoreNetty.Sandbox
             LibuvEventLoop eventLoop = new LibuvEventLoop(
                 unmanagedByteBufAllocator,
                 channelPipelineInitializer,
-                "http://127.0.0.1:5052"
+                "http://127.0.0.1:5052",
+                100 /* listenBacklog */
             );
 
+            BatchBlockingSwap2QueueT<ChannelReadData> interprocessingQueue =
+                new BatchBlockingSwap2QueueT<ChannelReadData>(100);
+            
+            eventLoop.BindInterprocessingQueue(interprocessingQueue);
+            
+            var channelPipelineExecutor = new ChannelPipelineExecutor(interprocessingQueue);
+
+            Task channelPipelineExecutionTask = channelPipelineExecutor.StartPipelinesProcessing();
             Task listeningTask = eventLoop.StartListeningAsync();
 
             Console.WriteLine("Listening 5052 ...");

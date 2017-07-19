@@ -5,6 +5,8 @@ namespace NetCoreNetty.Core
     // TODO: new() в Generic'ах реализован через рефлексию. Надо реорганизовать.
     public interface IChannelPipeline
     {
+        IChannel Channel { get; }
+        
         void AddLast<TChannelHandler>(string name)
             where TChannelHandler : IChannelHandler, new();
 

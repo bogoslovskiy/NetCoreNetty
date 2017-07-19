@@ -85,6 +85,12 @@ namespace NetCoreNetty.Libuv
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void uv_read_cb(IntPtr server, int nread, ref uv_buf_t buf);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void uv_prepare_cb(IntPtr prepareHandle);
+        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void uv_check_cb(IntPtr checkHandle);
+
         [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_loop_size();
 
@@ -144,6 +150,24 @@ namespace NetCoreNetty.Libuv
 
         [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
         static public extern IntPtr uv_strerror(int err);
+        
+        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_prepare_init(LibuvLoopHandle loopHandle, LibuvPrepareHandle prepareHandle);
+        
+        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_prepare_start(LibuvPrepareHandle prepareHandle, uv_prepare_cb prepare_cb);
+        
+        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_prepare_stop(LibuvPrepareHandle prepareHandle);
+        
+        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_check_init(LibuvLoopHandle loopHandle, LibuvCheckHandle checkHandle);
+        
+        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_check_start(LibuvCheckHandle checkHandle, uv_check_cb check_cb);
+        
+        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_check_stop(LibuvCheckHandle checkHandle);
 
         // TODO:
 //        static public void ThrowIfErrored(int statusCode)

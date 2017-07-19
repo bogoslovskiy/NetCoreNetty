@@ -5,6 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetCoreNetty.Buffers\NetCoreNetty.Buffers.csproj">
     </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Concurrency\NetCoreNetty.Concurrency.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
