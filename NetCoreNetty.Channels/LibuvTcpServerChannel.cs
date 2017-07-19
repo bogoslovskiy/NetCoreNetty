@@ -9,21 +9,27 @@ namespace NetCoreNetty.Channels
 {
     public class LibuvTcpServerChannel : LibuvTcpHandle, IChannel
     {
-        private Delegates.ChannelReadCallback _readCallback;
-
         // TODO: привести в порядок (избавиться от лишних методов в интерфейсе
         private readonly IUnmanagedByteBufAllocator _byteBufAllocator;
 
+        private readonly LibuvEventLoop _libuvEventLoop;
+
+        internal IChannelPipeline Pipeline { get; set; }
+
         public IByteBufAllocator ByteBufAllocator => _byteBufAllocator;
 
-        public LibuvTcpServerChannel(IUnmanagedByteBufAllocator byteBufAllocator)
+        public LibuvTcpServerChannel(
+            LibuvEventLoop libuvEventLoop,
+            IUnmanagedByteBufAllocator byteBufAllocator)
         {
+            _libuvEventLoop = libuvEventLoop;
             _byteBufAllocator = byteBufAllocator;
+            
+            Init(libuvEventLoop);
         }
 
-        public void StartRead(Delegates.ChannelReadCallback readCallback)
+        public void StartRead()
         {
-            _readCallback = readCallback;
             ReadStart(AllocCb, ReadCb);
         }
 
@@ -75,7 +81,7 @@ namespace NetCoreNetty.Channels
                 IUnmanagedByteBuf byteBuf = _byteBufAllocator.WrapDefault(buf.Memory, buf.Len);
                 byteBuf.SetWrite(status);
 
-                _readCallback(this, (ByteBuf)byteBuf);
+                _libuvEventLoop.EnqueueReadedData(Pipeline, (ByteBuf)byteBuf);
             }
             else if (status == 0)
             {

@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetCoreNetty.Buffers\NetCoreNetty.Buffers.csproj">
     </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Concurrency\NetCoreNetty.Concurrency.csproj" />
     <ProjectReference Include="..\NetCoreNetty.Core\NetCoreNetty.Core.csproj">
     </ProjectReference>
     <ProjectReference Include="..\NetCoreNetty.Libuv\NetCoreNetty.Libuv.csproj">

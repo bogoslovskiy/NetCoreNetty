@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreNetty.Core", "NetCor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreNetty.Buffers.Tests", "NetCoreNetty.Buffers.Tests\NetCoreNetty.Buffers.Tests.csproj", "{03076392-F186-4C5B-9460-436E8D74F767}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreNetty.Concurrency", "NetCoreNetty.Concurrency\NetCoreNetty.Concurrency.csproj", "{10D1510F-35DC-4922-8C07-084BE6F8F5F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{03076392-F186-4C5B-9460-436E8D74F767}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03076392-F186-4C5B-9460-436E8D74F767}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03076392-F186-4C5B-9460-436E8D74F767}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10D1510F-35DC-4922-8C07-084BE6F8F5F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10D1510F-35DC-4922-8C07-084BE6F8F5F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10D1510F-35DC-4922-8C07-084BE6F8F5F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10D1510F-35DC-4922-8C07-084BE6F8F5F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

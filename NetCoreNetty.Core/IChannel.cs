@@ -6,7 +6,7 @@ namespace NetCoreNetty.Core
     {
         IByteBufAllocator ByteBufAllocator { get; }
 
-        void StartRead(Delegates.ChannelReadCallback readCallback);
+        void StartRead();
 
         void StopRead();
 

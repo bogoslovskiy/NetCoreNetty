@@ -24,21 +24,18 @@ namespace NetCoreNetty.Core
             }
         }
 
-        private IChannel _channel;
-        private IExecutor _executor;
         private ChannelHandlerContext _terminatorHandlerContext;
         
         private int _inboundThreadId = -1;
+        private int _inboundEnters = 0;
         private int _outboundThreadId = -1;
-        
-        public IExecutor Executor => _executor;
+        private int _outboundEnters = 0;
 
-        public ChannelPipeline(
-            IChannel channel,
-            IExecutor executor)
+        public IChannel Channel { get; }
+
+        public ChannelPipeline(IChannel channel)
         {
-            _channel = channel;
-            _executor = executor;
+            Channel = channel;
             _terminatorHandlerContext = CreateContext(
                 "_firstHandlerContext",
                 new TerminatorChannelHandler()
@@ -65,6 +62,7 @@ namespace NetCoreNetty.Core
                 if (inboundThreadId == -1 | inboundThreadId == Thread.CurrentThread.ManagedThreadId)
                 {
                     // Текущий поток либо итак владелец блокировки, либо взял блокировку.
+                    _inboundEnters++;
                     return;
                 }
                 
@@ -92,6 +90,8 @@ namespace NetCoreNetty.Core
             {
                 throw new InvalidOperationException("Current thread is not owner of read lock.");
             }
+
+            _inboundEnters--;
         }
 
         public void EnterOutbound()
@@ -145,12 +145,12 @@ namespace NetCoreNetty.Core
 
         public void StartReceiving()
         {
-            _channel.StartRead(ChannelReadCallback);
+            Channel.StartRead();
         }
 
         public void StopReceiving()
         {
-            _channel.StopRead();
+            Channel.StopRead();
         }
 
         public void AddFirst<TChannelHandler>(string name)
@@ -236,7 +236,7 @@ namespace NetCoreNetty.Core
 
         private ChannelHandlerContext CreateContext(string name, IChannelHandler handler)
         {
-            var ctx = new ChannelHandlerContext(name, _channel, handler, this);
+            var ctx = new ChannelHandlerContext(name, Channel, handler, this);
             return ctx;
         }
 

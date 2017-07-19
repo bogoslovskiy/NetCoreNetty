@@ -11,10 +11,9 @@ namespace NetCoreNetty.Libuv
             LibuvNative.uv_loop_init(this);
         }
 
-        // TODO: mode = 0?
-        public void Run(int mode)
+        public int RunDefault()
         {
-            LibuvNative.uv_run(this, mode);
+            return LibuvNative.uv_run(this, 0 /* UV_RUN_DEFAULT */);
         }
 
         public void Stop()

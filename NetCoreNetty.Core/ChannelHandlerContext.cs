@@ -48,7 +48,7 @@ namespace NetCoreNetty.Core
         {
             try
             {
-                _pipeline.Executor.Run(InvokeReadWithLock, message);
+                InvokeReadWithLock(message);
             }
             catch (Exception ex)
             {
@@ -61,7 +61,7 @@ namespace NetCoreNetty.Core
         {
             try
             {
-                _pipeline.Executor.Run(InvokeWriteWithLock, message);
+                InvokeWriteWithLock(message);
             }
             catch (Exception ex)
             {
