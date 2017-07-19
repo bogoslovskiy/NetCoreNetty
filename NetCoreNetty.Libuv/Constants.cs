@@ -15,7 +15,7 @@ namespace NetCoreNetty.Libuv
         /// </summary>
         public const string UnixPipeHostPrefix = "unix:/";
 
-        public const string ServerName = "Kestrel";
+        public const string ServerName = "NetCoreNetty";
 
         private static int? GetECONNRESET()
         {
