@@ -1,6 +1,6 @@
 ﻿using NetCoreNetty.Buffers;
 
-namespace NetCoreNetty.Codecs.WebSockets.DecoderStateMachine
+namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
 {
     interface IWebSocketDecoderStep
     {

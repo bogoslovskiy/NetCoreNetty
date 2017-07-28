@@ -1,6 +1,6 @@
 ﻿using NetCoreNetty.Buffers;
 
-namespace NetCoreNetty.Codecs.WebSockets.DecoderStateMachine
+namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
 {
     // TODO: FIN + _headerStep.
     class WebSocketReadPayloadDataStep : IWebSocketDecoderStep
@@ -42,7 +42,7 @@ namespace NetCoreNetty.Codecs.WebSockets.DecoderStateMachine
 
             frame = new WebSocketFrame();
             frame.IsFinal = state.Fin;
-            frame.Type = Utils.GetFrameType(state.OpCode);
+            frame.Type = Predefined.Codecs.WebSockets.Utils.GetFrameType(state.OpCode);
             frame.Bytes = frameBytes;
         }
     }

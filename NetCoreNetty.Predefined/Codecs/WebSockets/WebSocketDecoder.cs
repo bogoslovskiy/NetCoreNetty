@@ -1,8 +1,9 @@
 ﻿using NetCoreNetty.Buffers;
-using NetCoreNetty.Codecs.WebSockets.DecoderStateMachine;
+using NetCoreNetty.Codecs;
 using NetCoreNetty.Core;
+using NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine;
 
-namespace NetCoreNetty.Codecs.WebSockets
+namespace NetCoreNetty.Predefined.Codecs.WebSockets
 {
     // TODO: пулинг декодера
     public class WebSocketDecoder : ByteToMessageDecoder<WebSocketFrame>

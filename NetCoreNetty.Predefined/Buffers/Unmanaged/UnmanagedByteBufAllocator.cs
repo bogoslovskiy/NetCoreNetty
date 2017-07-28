@@ -2,9 +2,9 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NetCoreNetty.Predefined.Buffers.Unmanaged;
+using NetCoreNetty.Buffers;
 
-namespace NetCoreNetty.Buffers.Unmanaged
+namespace NetCoreNetty.Predefined.Buffers.Unmanaged
 {
     // TODO: Выделять один большой сегмент памяти и из него раздавать нужные сегменты
     public class UnmanagedByteBufAllocator : IUnmanagedByteBufAllocator

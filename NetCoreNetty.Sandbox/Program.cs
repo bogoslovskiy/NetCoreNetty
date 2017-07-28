@@ -2,12 +2,12 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NetCoreNetty.Buffers.Unmanaged;
-using NetCoreNetty.Codecs.WebSockets;
 using NetCoreNetty.Concurrency;
 using NetCoreNetty.Core;
-using NetCoreNetty.Handlers.Http.WebSockets;
+using NetCoreNetty.Predefined.Buffers.Unmanaged;
 using NetCoreNetty.Predefined.Channels.Libuv;
+using NetCoreNetty.Predefined.Codecs.WebSockets;
+using NetCoreNetty.Predefined.Handlers.Http.WebSockets;
 
 namespace NetCoreNetty.Sandbox
 {

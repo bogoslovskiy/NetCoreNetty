@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using NetCoreNetty.Buffers;
-using NetCoreNetty.Buffers.Unmanaged;
-using NetCoreNetty.Channels;
 using NetCoreNetty.Concurrency;
 using NetCoreNetty.Core;
 using NetCoreNetty.Libuv;
+using NetCoreNetty.Predefined.Buffers.Unmanaged;
 
 namespace NetCoreNetty.Predefined.Channels.Libuv
 {

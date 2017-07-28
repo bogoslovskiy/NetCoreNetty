@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace NetCoreNetty.Handlers.Http.WebSockets
+namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets
 {
     static public class HttpHeaderConstants
     {

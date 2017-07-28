@@ -1,6 +1,6 @@
 ﻿using NetCoreNetty.Core;
 
-namespace NetCoreNetty.Handlers.Http.WebSockets
+namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets
 {
     public class FastHttpWebSocketHandshakeHandlerProvider : IChannelHandlerProvider
     {

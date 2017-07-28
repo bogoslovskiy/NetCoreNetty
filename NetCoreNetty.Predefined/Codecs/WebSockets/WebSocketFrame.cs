@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace NetCoreNetty.Codecs.WebSockets
+namespace NetCoreNetty.Predefined.Codecs.WebSockets
 {
     public class WebSocketFrame
     {

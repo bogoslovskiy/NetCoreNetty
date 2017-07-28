@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using NetCoreNetty.Buffers;
 using NetCoreNetty.Core;
-using NetCoreNetty.Handlers.Http.WebSockets.Match;
-using NetCoreNetty.Handlers.Http.WebSockets.Response;
+using NetCoreNetty.Handlers;
+using NetCoreNetty.Predefined.Handlers.Http.WebSockets.Match;
+using NetCoreNetty.Predefined.Handlers.Http.WebSockets.Response;
 
-namespace NetCoreNetty.Handlers.Http.WebSockets
+namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets
 {
     public class FastHttpWebSocketHandshakeHandler : ByteMessageHandler
     {

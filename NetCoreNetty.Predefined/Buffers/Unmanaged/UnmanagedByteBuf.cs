@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using NetCoreNetty.Buffers;
-using NetCoreNetty.Buffers.Unmanaged;
 using NetCoreNetty.Utils.ByteConverters;
 
 namespace NetCoreNetty.Predefined.Buffers.Unmanaged

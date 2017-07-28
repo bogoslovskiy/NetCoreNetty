@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace NetCoreNetty.Handlers.Http.WebSockets.Match
+namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets.Match
 {
     [DebuggerDisplay(
         "Connection:{ConnectionHeaderMatched}, Upgrade:{UpgradeHeaderMatched}, SecWebSocketVersion:{SecWebSocketVersionHeaderMatched}, SecWebSocketKey:{SecWebSocketKeyHeaderMatched}"
