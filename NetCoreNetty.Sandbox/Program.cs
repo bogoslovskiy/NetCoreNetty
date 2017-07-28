@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetCoreNetty.Buffers.Unmanaged;
-using NetCoreNetty.Channels;
 using NetCoreNetty.Codecs.WebSockets;
-using NetCoreNetty.Concurrency.Blocking;
+using NetCoreNetty.Concurrency;
 using NetCoreNetty.Core;
 using NetCoreNetty.Handlers.Http.WebSockets;
+using NetCoreNetty.Predefined.Channels.Libuv;
 
 namespace NetCoreNetty.Sandbox
 {
@@ -54,7 +53,7 @@ namespace NetCoreNetty.Sandbox
                     else if (frame.Type == WebSocketFrameType.Text)
                     {
                         string inboundMessage = frame.Text;
-                        string echo = string.Format("Ваше сообщение: '{0}'", inboundMessage);
+                        string echo = string.Format("Echo: '{0}'", inboundMessage);
 
                         ctx.Write(
                             new WebSocketFrame
@@ -99,14 +98,12 @@ namespace NetCoreNetty.Sandbox
                 100 /* listenBacklog */
             );
 
-            BatchBlockingSwap2QueueT<ChannelReadData> interprocessingQueue =
-                new BatchBlockingSwap2QueueT<ChannelReadData>(100);
-            
-            eventLoop.BindInterprocessingQueue(interprocessingQueue);
-            
-            var channelPipelineExecutor = new ChannelPipelineExecutor(interprocessingQueue);
+            var produceConsumeBuffer = new FastProduceConsumeBuffer<ChannelReadData>(8);
 
-            Task channelPipelineExecutionTask = channelPipelineExecutor.StartPipelinesProcessing();
+            Thread consumerThread = StartConsumerThread(produceConsumeBuffer);
+            
+            eventLoop.Bind(produceConsumeBuffer);
+            
             Task listeningTask = eventLoop.StartListeningAsync();
 
             Console.WriteLine("Listening 5052 ...");
@@ -114,6 +111,25 @@ namespace NetCoreNetty.Sandbox
             Console.ReadLine();
 
             eventLoop.Shutdown();
+        }
+
+        static private Thread StartConsumerThread(FastProduceConsumeBuffer<ChannelReadData> produceConsumeBuffer)
+        {
+            var th = new Thread(
+                obj =>
+                {
+                    var buffer = (FastProduceConsumeBuffer<ChannelReadData>)obj;
+                    buffer.StartRead(ProcessChannelData);
+                }
+            );
+            th.Start(produceConsumeBuffer);
+
+            return th;
+        }
+        
+        static private void ProcessChannelData(ChannelReadData data)
+        {
+            data.ChannelPipeline.ChannelReadCallback(data.ChannelPipeline.Channel, data.ByteBuffer);
         }
     }
 }
