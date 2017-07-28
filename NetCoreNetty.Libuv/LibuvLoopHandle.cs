@@ -15,6 +15,11 @@ namespace NetCoreNetty.Libuv
         {
             return LibuvNative.uv_run(this, 0 /* UV_RUN_DEFAULT */);
         }
+        
+        public int RunOnce()
+        {
+            return LibuvNative.uv_run(this, 1 /* UV_RUN_ONCE */);
+        }
 
         public void Stop()
         {

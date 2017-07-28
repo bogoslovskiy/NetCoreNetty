@@ -16,14 +16,9 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../NetCoreNetty.Handlers/NetCoreNetty.Handlers.csproj" />
-    <ProjectReference Include="../NetCoreNetty.Codecs/NetCoreNetty.Codecs.csproj" />
-    <ProjectReference Include="../NetCoreNetty.Channels/NetCoreNetty.Channels.csproj" />
-    <ProjectReference Include="..\NetCoreNetty.Buffers\NetCoreNetty.Buffers.csproj">
-    </ProjectReference>
-    <ProjectReference Include="..\NetCoreNetty.Core\NetCoreNetty.Core.csproj">
-    </ProjectReference>
     <ProjectReference Include="..\NetCoreNetty.Libuv\NetCoreNetty.Libuv.csproj">
     </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Predefined\NetCoreNetty.Predefined.csproj" />
+    <ProjectReference Include="..\NetCoreNetty\NetCoreNetty.csproj" />
   </ItemGroup>
 </Project>

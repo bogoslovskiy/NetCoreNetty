@@ -1,13 +1,5 @@
 ﻿<Properties StartupConfiguration="{73579F5E-6632-4BA4-A0C6-368BC803FDC4}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="NetCoreNetty.Buffers/Unmanaged/UnmanagedByteBuf.cs">
-    <Files>
-      <File FileName="NetCoreNetty.Handlers/ByteMessageHandler.cs" Line="27" Column="32" />
-      <File FileName="NetCoreNetty.Handlers/Http/WebSockets/FastHttpWebSocketHandshakeHandler.cs" Line="42" Column="1" />
-      <File FileName="NetCoreNetty.Buffers/Unmanaged/UnmanagedByteBuf.cs" Line="603" Column="10" />
-      <File FileName="NetCoreNetty.Buffers/Unmanaged/UnmanagedByteBufAllocator.cs" Line="68" Column="10" />
-      <File FileName="NetCoreNetty.Channels/LibuvTcpServerChannel.cs" Line="60" Column="1" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>

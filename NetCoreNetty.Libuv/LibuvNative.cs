@@ -6,6 +6,8 @@ namespace NetCoreNetty.Libuv
     // TODO: throw if error для методов, которые возвращают статус.
     static public class LibuvNative
     {
+        private const string LibName = "libuv";
+        
         public enum HandleType
         {
             Unknown = 0,
@@ -90,85 +92,98 @@ namespace NetCoreNetty.Libuv
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void uv_check_cb(IntPtr checkHandle);
+        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void uv_async_cb(IntPtr asyncHandle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_loop_size();
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_handle_size(HandleType handleType);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_loop_init(LibuvLoopHandle handle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_loop_close(IntPtr handle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_run(LibuvLoopHandle handle, int mode);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern void uv_stop(LibuvLoopHandle handle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern void uv_ref(LibuvHandle handle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern void uv_unref(LibuvHandle handle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern void uv_close(IntPtr handle, uv_close_cb close_cb);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_listen(LibuvStreamHandle handle, int backlog, uv_connection_cb cb);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_accept(LibuvStreamHandle server, LibuvStreamHandle client);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_read_start(LibuvStreamHandle handle, uv_alloc_cb alloc_cb, uv_read_cb read_cb);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_read_stop(LibuvStreamHandle handle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_try_write(LibuvStreamHandle handle, uv_buf_t[] bufs, int nbufs);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_tcp_init(LibuvLoopHandle loopHandle, LibuvTcpHandle tcpHandle);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_tcp_bind(LibuvTcpHandle handle, ref SockAddr addr, int flags);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_ip4_addr(string ip, int port, out SockAddr addr);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_ip6_addr(string ip, int port, out SockAddr addr);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern IntPtr uv_err_name(int err);
 
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern IntPtr uv_strerror(int err);
         
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_prepare_init(LibuvLoopHandle loopHandle, LibuvPrepareHandle prepareHandle);
         
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_prepare_start(LibuvPrepareHandle prepareHandle, uv_prepare_cb prepare_cb);
         
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_prepare_stop(LibuvPrepareHandle prepareHandle);
         
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_check_init(LibuvLoopHandle loopHandle, LibuvCheckHandle checkHandle);
         
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_check_start(LibuvCheckHandle checkHandle, uv_check_cb check_cb);
         
-        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
         static public extern int uv_check_stop(LibuvCheckHandle checkHandle);
 
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_async_init(
+            LibuvLoopHandle loopHandle, 
+            LibuvAsyncHandle asyncHandle,
+            uv_async_cb async_cb);
+        
+        [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+        static public extern int uv_async_send(LibuvAsyncHandle asyncHandle);
+        
+        
         // TODO:
 //        static public void ThrowIfErrored(int statusCode)
 //        {
@@ -203,108 +218,5 @@ namespace NetCoreNetty.Libuv
 //            return new UvException("Error " + statusCode + " " + errorName + " " + errorDescription, statusCode);
 //        }
 
-
-
-
-
-
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_fileno(UvHandle handle, ref IntPtr socket);
-//
-//
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_async_init(UvLoopHandle loop, UvAsyncHandle handle, Libuv.uv_async_cb cb);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public extern static int uv_async_send(UvAsyncHandle handle);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl, EntryPoint = "uv_async_send")]
-//        public extern static int uv_unsafe_async_send(IntPtr handle);
-//
-//
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_tcp_open(UvTcpHandle handle, IntPtr hSocket);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_tcp_nodelay(UvTcpHandle handle, int enable);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_pipe_init(UvLoopHandle loop, UvPipeHandle handle, int ipc);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_pipe_bind(UvPipeHandle loop, string name);
-//
-//
-//
-//
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-//        public static extern void uv_pipe_connect(UvConnectRequest req, UvPipeHandle handle, string name, Libuv.uv_connect_cb cb);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public extern static int uv_pipe_pending_count(UvPipeHandle handle);
-//
-//
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        unsafe public static extern int uv_write(UvRequest req, UvStreamHandle handle, Libuv.uv_buf_t* bufs, int nbufs, Libuv.uv_write_cb cb);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        unsafe public static extern int uv_write2(UvRequest req, UvStreamHandle handle, Libuv.uv_buf_t* bufs, int nbufs, UvStreamHandle sendHandle, Libuv.uv_write_cb cb);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_shutdown(UvShutdownReq req, UvStreamHandle handle, Libuv.uv_shutdown_cb cb);
-//
-
-//
-//
-//
-//
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_req_size(Libuv.RequestType reqType);
-//
-//
-//
-//
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_tcp_getsockname(UvTcpHandle handle, out SockAddr name, ref int namelen);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_tcp_getpeername(UvTcpHandle handle, out SockAddr name, ref int namelen);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        public static extern int uv_walk(UvLoopHandle loop, Libuv.uv_walk_cb walk_cb, IntPtr arg);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        unsafe public static extern int uv_timer_init(UvLoopHandle loop, UvTimerHandle handle);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        unsafe public static extern int uv_timer_start(UvTimerHandle handle, Libuv.uv_timer_cb cb, long timeout, long repeat);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        unsafe public static extern int uv_timer_stop(UvTimerHandle handle);
-//
-//        [DllImport("libuv", CallingConvention = CallingConvention.Cdecl)]
-//        unsafe public static extern long uv_now(UvLoopHandle loop);
-//
-//        [DllImport("WS2_32.dll", CallingConvention = CallingConvention.Winapi)]
-//        unsafe public static extern int WSAIoctl(
-//            IntPtr socket,
-//            int dwIoControlCode,
-//            int* lpvInBuffer,
-//            uint cbInBuffer,
-//            int* lpvOutBuffer,
-//            int cbOutBuffer,
-//            out uint lpcbBytesReturned,
-//            IntPtr lpOverlapped,
-//            IntPtr lpCompletionRoutine
-//        );
-//
-//        [DllImport("WS2_32.dll", CallingConvention = CallingConvention.Winapi)]
-//        public static extern int WSAGetLastError();
     }
 }
