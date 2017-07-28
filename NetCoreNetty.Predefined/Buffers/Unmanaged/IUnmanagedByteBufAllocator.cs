@@ -1,6 +1,7 @@
 ﻿using System;
+using NetCoreNetty.Buffers;
 
-namespace NetCoreNetty.Buffers.Unmanaged
+namespace NetCoreNetty.Predefined.Buffers.Unmanaged
 {
     public interface IUnmanagedByteBufAllocator : IByteBufAllocator
     {

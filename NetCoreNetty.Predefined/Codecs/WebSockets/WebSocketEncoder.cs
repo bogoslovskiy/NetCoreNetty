@@ -1,9 +1,10 @@
 ﻿using System;
 using NetCoreNetty.Buffers;
+using NetCoreNetty.Codecs;
 using NetCoreNetty.Core;
 using NetCoreNetty.Utils.ByteConverters;
 
-namespace NetCoreNetty.Codecs.WebSockets
+namespace NetCoreNetty.Predefined.Codecs.WebSockets
 {
     // TODO: посмотреть в спецификации, требуется ли маска для серверного ответа (по-моему нет)
     public class WebSocketEncoder : MessageToByteEncoder<WebSocketFrame>
@@ -48,10 +49,10 @@ namespace NetCoreNetty.Codecs.WebSockets
             // TODO: разбиение по буферам, буферы фиксированного размера.
             ByteBuf byteBuf = ctx.ChannelByteBufAllocator.GetDefault();
 
-            byte opCode = Utils.GetFrameOpCode(frame.Type);
+            byte opCode = Predefined.Codecs.WebSockets.Utils.GetFrameOpCode(frame.Type);
             if (frame.IsFinal)
             {
-                opCode = (byte)(opCode | Utils.MaskFin);
+                opCode = (byte)(opCode | Predefined.Codecs.WebSockets.Utils.MaskFin);
             }
 
             byteBuf.Write(opCode);
@@ -76,7 +77,7 @@ namespace NetCoreNetty.Codecs.WebSockets
 
             if (mask)
             {
-                payloadLenAndMask = (byte)(payloadLenAndMask | Utils.MaskMask);
+                payloadLenAndMask = (byte)(payloadLenAndMask | Predefined.Codecs.WebSockets.Utils.MaskMask);
             }
 
             byteBuf.Write(payloadLenAndMask);

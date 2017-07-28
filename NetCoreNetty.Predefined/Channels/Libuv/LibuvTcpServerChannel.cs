@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using NetCoreNetty.Buffers;
-using NetCoreNetty.Buffers.Unmanaged;
 using NetCoreNetty.Core;
 using NetCoreNetty.Libuv;
-using NetCoreNetty.Predefined.Channels.Libuv;
+using NetCoreNetty.Predefined.Buffers.Unmanaged;
 
-namespace NetCoreNetty.Channels
+namespace NetCoreNetty.Predefined.Channels.Libuv
 {
     public class LibuvTcpServerChannel : LibuvTcpHandle, IChannel
     {

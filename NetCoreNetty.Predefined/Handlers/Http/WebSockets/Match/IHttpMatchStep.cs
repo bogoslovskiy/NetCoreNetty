@@ -1,6 +1,6 @@
 ﻿using NetCoreNetty.Buffers;
 
-namespace NetCoreNetty.Handlers.Http.WebSockets.Match
+namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets.Match
 {
     public interface IHttpMatchStep
     {

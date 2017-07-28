@@ -1,4 +1,4 @@
-﻿namespace NetCoreNetty.Codecs.WebSockets.DecoderStateMachine
+﻿namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
 {
     struct WebSocketReadState
     {

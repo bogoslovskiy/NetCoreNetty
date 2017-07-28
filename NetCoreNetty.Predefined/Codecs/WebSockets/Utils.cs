@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetCoreNetty.Codecs.WebSockets
+namespace NetCoreNetty.Predefined.Codecs.WebSockets
 {
     static public class Utils
     {

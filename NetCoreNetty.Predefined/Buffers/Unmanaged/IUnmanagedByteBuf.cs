@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetCoreNetty.Buffers.Unmanaged
+namespace NetCoreNetty.Predefined.Buffers.Unmanaged
 {
     public interface IUnmanagedByteBuf
     {

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using NetCoreNetty.Buffers;
 using NetCoreNetty.Core;
 
-namespace NetCoreNetty.Handlers.Http.WebSockets.Response
+namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets.Response
 {
     static public class SwitchingProtocolResponse
     {

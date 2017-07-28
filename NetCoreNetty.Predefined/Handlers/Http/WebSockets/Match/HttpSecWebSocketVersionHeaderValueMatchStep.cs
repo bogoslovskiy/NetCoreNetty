@@ -1,4 +1,4 @@
-﻿namespace NetCoreNetty.Handlers.Http.WebSockets.Match
+﻿namespace NetCoreNetty.Predefined.Handlers.Http.WebSockets.Match
 {
     public class HttpSecWebSocketVersionHeaderValueMatchStep : HttpHeaderValueMatchStepBase
     {

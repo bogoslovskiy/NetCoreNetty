@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace NetCoreNetty.Buffers.Unmanaged
+namespace NetCoreNetty.Predefined.Buffers.Unmanaged
 {
     static public class MemorySegment
     {
