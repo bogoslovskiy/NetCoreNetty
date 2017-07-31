@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using NetCoreNetty.Buffers.Unmanaged;
+using NetCoreNetty.Predefined.Buffers.Unmanaged;
 using Xunit;
 
 namespace NetCoreNetty.Buffers.Tests.Unmanaged

@@ -4,7 +4,7 @@ namespace NetCoreNetty.Core
 {
     public interface IChannelEventLoop
     {
-        void Bind(Concurrency.FastProduceConsumeBuffer<ChannelReadData> buffer);
+        void Bind(IInboundBuffer inboundBuffer);
         
         Task StartListeningAsync();
         

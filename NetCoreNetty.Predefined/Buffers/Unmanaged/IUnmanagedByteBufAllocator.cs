@@ -3,6 +3,7 @@ using NetCoreNetty.Buffers;
 
 namespace NetCoreNetty.Predefined.Buffers.Unmanaged
 {
+    // TODO: привести в порядок (избавиться от лишних методов в интерфейсе
     public interface IUnmanagedByteBufAllocator : IByteBufAllocator
     {
         IUnmanagedByteBuf GetDefaultUnmanaged();

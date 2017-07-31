@@ -7,38 +7,35 @@ using NetCoreNetty.Predefined.Buffers.Unmanaged;
 
 namespace NetCoreNetty.Predefined.Channels.Libuv
 {
-    public class LibuvTcpServerChannel : LibuvTcpHandle, IChannel
+    public class LibuvTcpServerChannel : ChannelBase
     {
-        // TODO: привести в порядок (избавиться от лишних методов в интерфейсе
         private readonly IUnmanagedByteBufAllocator _byteBufAllocator;
 
-        private readonly LibuvEventLoop _libuvEventLoop;
-
-        internal IChannelPipeline Pipeline { get; set; }
-
-        public IByteBufAllocator ByteBufAllocator => _byteBufAllocator;
+        internal LibuvTcpHandle LibuvTcpHandle { get; }
 
         public LibuvTcpServerChannel(
             LibuvEventLoop libuvEventLoop,
-            IUnmanagedByteBufAllocator byteBufAllocator)
+            IUnmanagedByteBufAllocator byteBufAllocator,
+            IInboundBuffer inboundBuffer)
+            : base(byteBufAllocator, inboundBuffer)
         {
-            _libuvEventLoop = libuvEventLoop;
             _byteBufAllocator = byteBufAllocator;
-            
-            Init(libuvEventLoop);
+
+            LibuvTcpHandle = new LibuvTcpHandle();
+            LibuvTcpHandle.Init(libuvEventLoop);
         }
 
-        public void StartRead()
+        public override void StartRead()
         {
-            ReadStart(AllocCb, ReadCb);
+            LibuvTcpHandle.ReadStart(AllocCallback, ReadCallback);
         }
 
-        public void StopRead()
+        public override void StopRead()
         {
-            ReadStop();
+            LibuvTcpHandle.ReadStop();
         }
 
-        public void Write(ByteBuf byteBuf)
+        public override void Write(ByteBuf byteBuf)
         {
             IUnmanagedByteBuf unmanagedByteBuf = byteBuf as IUnmanagedByteBuf;
             if (unmanagedByteBuf == null)
@@ -53,13 +50,13 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
             var buf = new LibuvNative.uv_buf_t(ptr, len, PlatformApis.IsWindows);
 
             // TODO: обрабатывать статус с ошибкой.
-            int status = TryWrite(buf);
+            int status = LibuvTcpHandle.TryWrite(buf);
 
             // Освобождаем буфер.
             byteBuf.Release();
         }
 
-        private void AllocCb(
+        private void AllocCallback(
             LibuvStreamHandle streamHandle,
             int suggestedsize,
             out LibuvNative.uv_buf_t buf)
@@ -71,17 +68,14 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
             buf = new LibuvNative.uv_buf_t(dataPtr, size, PlatformApis.IsWindows);
         }
 
-        private void ReadCb(LibuvStreamHandle streamHandle, int status, ref LibuvNative.uv_buf_t buf)
+        private void ReadCallback(LibuvStreamHandle streamHandle, int status, ref LibuvNative.uv_buf_t buf)
         {
             if (status > 0)
             {
-                // TODO:
-                Console.WriteLine("ReadCallback. {0} bytes to read.", status);
-                
                 IUnmanagedByteBuf byteBuf = _byteBufAllocator.WrapDefault(buf.Memory, buf.Len);
                 byteBuf.SetWrite(status);
 
-                _libuvEventLoop.EnqueueReadedData(Pipeline, (ByteBuf)byteBuf);
+                OnRead((ByteBuf)byteBuf);
             }
             else if (status == 0)
             {

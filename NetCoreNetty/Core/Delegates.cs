@@ -4,6 +4,6 @@ namespace NetCoreNetty.Core
 {
     public class Delegates
     {
-        public delegate void ChannelReadCallback(IChannel channel, ByteBuf byteBuf);
+        public delegate void ChannelReadCallback(ChannelBase channel, ByteBuf byteBuf);
     }
 }

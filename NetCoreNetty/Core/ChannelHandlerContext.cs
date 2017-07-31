@@ -5,14 +5,14 @@ namespace NetCoreNetty.Core
 {
     internal class ChannelHandlerContext : IChannelHandlerContext
     {
-        private IChannel _channel;
+        private ChannelBase _channel;
         private IChannelHandler _handler;
         private IChannelPipeline _pipeline;
         
         internal ChannelHandlerContext Next;
         internal ChannelHandlerContext Prev;
 
-        public IChannel Channel => _channel;
+        public ChannelBase Channel => _channel;
 
         public IChannelHandler Handler => _handler;
 
@@ -24,7 +24,7 @@ namespace NetCoreNetty.Core
 
         public ChannelHandlerContext(
             string name,
-            IChannel channel,
+            ChannelBase channel,
             IChannelHandler handler,
             IChannelPipeline pipeline)
         {

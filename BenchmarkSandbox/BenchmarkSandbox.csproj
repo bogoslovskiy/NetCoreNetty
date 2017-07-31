@@ -12,13 +12,7 @@
     <Folder Include="BenchmarkDotNet.Artifacts\results" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetCoreNetty.Buffers\NetCoreNetty.Buffers.csproj">
-    </ProjectReference>
-    <ProjectReference Include="..\NetCoreNetty.Codecs\NetCoreNetty.Codecs.csproj">
-    </ProjectReference>
-    <ProjectReference Include="..\NetCoreNetty.Handlers\NetCoreNetty.Handlers.csproj">
-    </ProjectReference>
-    <ProjectReference Include="..\NetCoreNetty.Utils\NetCoreNetty.Utils.csproj">
-    </ProjectReference>
+    <ProjectReference Include="..\NetCoreNetty.Predefined\NetCoreNetty.Predefined.csproj" />
+    <ProjectReference Include="..\NetCoreNetty\NetCoreNetty.csproj" />
   </ItemGroup>
 </Project>

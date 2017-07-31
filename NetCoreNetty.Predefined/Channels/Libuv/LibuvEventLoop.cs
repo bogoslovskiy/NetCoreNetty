@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NetCoreNetty.Buffers;
-using NetCoreNetty.Concurrency;
 using NetCoreNetty.Core;
 using NetCoreNetty.Libuv;
 using NetCoreNetty.Predefined.Buffers.Unmanaged;
@@ -16,9 +14,9 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
         private readonly int _listenBacklog;
         
         private LibuvTcpHandle _serverTcpHandle;
-        private List<LibuvTcpHandle> _clientTcpHandles = new List<LibuvTcpHandle>();
+        private List<LibuvTcpServerChannel> _clientTcpHandles = new List<LibuvTcpServerChannel>();
 
-        private FastProduceConsumeBuffer<ChannelReadData> _buffer;
+        private IInboundBuffer _inboundBuffer;
         
         public LibuvEventLoop(
             IUnmanagedByteBufAllocator channelByteBufAllocator,
@@ -32,9 +30,9 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
             _listenBacklog = listenBacklog;
         }
 
-        public void Bind(FastProduceConsumeBuffer<ChannelReadData> buffer)
+        public void Bind(IInboundBuffer inboundBuffer)
         {
-            _buffer = buffer;
+            _inboundBuffer = inboundBuffer;
         }
 
         public async Task StartListeningAsync()
@@ -45,14 +43,6 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
         public void Shutdown()
         {
             Stop();
-        }
-
-        internal void EnqueueReadedData(IChannelPipeline pipeline, ByteBuf byteBuffer)
-        {
-            // Пишем.
-            var channelReadData = new ChannelReadData(pipeline, byteBuffer);
-
-            _buffer.Write(pipeline.ExecutionBuffer, channelReadData);
         }
 
         private void StartListening()
@@ -70,13 +60,17 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
 
         private void ConnectionCallback(LibuvStreamHandle streamHandle, int status)
         {
-            var libuvTcpServerChannel = new LibuvTcpServerChannel(this, _channelByteBufAllocator);
+            var libuvTcpServerChannel = new LibuvTcpServerChannel(
+                this,
+                _channelByteBufAllocator,
+                _inboundBuffer
+            );
 
             // TODO: тут все принципы проектирования нарушены. по возможности порефакторить.
             IChannelPipeline pipeline = _channelPipelineInitializer.GetPipeline(libuvTcpServerChannel);
-            libuvTcpServerChannel.Pipeline = pipeline;
+            libuvTcpServerChannel.ChannelPipeline = pipeline;
             
-            streamHandle.Accept(libuvTcpServerChannel);
+            streamHandle.Accept(libuvTcpServerChannel.LibuvTcpHandle);
             _clientTcpHandles.Add(libuvTcpServerChannel);
 
             libuvTcpServerChannel.StartRead();

@@ -4,7 +4,7 @@ namespace NetCoreNetty.Core
 {
     public interface IChannelHandlerContext
     {
-        IChannel Channel { get; }
+        ChannelBase Channel { get; }
 
         IChannelHandler Handler { get; }
 

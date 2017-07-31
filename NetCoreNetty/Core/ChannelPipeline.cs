@@ -29,11 +29,11 @@ namespace NetCoreNetty.Core
         private CircularBuffer<ChannelReadData> _executionBuffer =
             new CircularBuffer<ChannelReadData>(32);
         
-        public IChannel Channel { get; }
+        public ChannelBase Channel { get; }
 
-        public CircularBuffer<ChannelReadData> ExecutionBuffer => _executionBuffer;
+        public CircularBuffer<ChannelReadData> InternalInboundBuffer => _executionBuffer;
 
-        public ChannelPipeline(IChannel channel)
+        public ChannelPipeline(ChannelBase channel)
         {
             Channel = channel;
             _terminatorHandlerContext = CreateContext(
@@ -98,7 +98,7 @@ namespace NetCoreNetty.Core
             Replace(targetName, name, handler);
         }
 
-        public void ChannelReadCallback(IChannel channel, ByteBuf byteBuf)
+        public void ChannelReadCallback(ChannelBase channel, ByteBuf byteBuf)
         {
             _terminatorHandlerContext.InvokeRead(byteBuf);
         }
