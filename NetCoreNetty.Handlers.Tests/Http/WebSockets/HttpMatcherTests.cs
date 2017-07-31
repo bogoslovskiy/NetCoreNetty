@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using NetCoreNetty.Buffers;
-using NetCoreNetty.Handlers.Http.WebSockets.Match;
+using NetCoreNetty.Predefined.Handlers.Http.WebSockets.Match;
 using Xunit;
 
 namespace NetCoreNetty.Handlers.Tests.Http.WebSockets

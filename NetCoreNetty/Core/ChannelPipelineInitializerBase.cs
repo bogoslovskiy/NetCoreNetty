@@ -4,7 +4,7 @@
     {
         abstract protected void Initialize(IChannelPipeline pipeline);
 
-        public IChannelPipeline GetPipeline(IChannel channel)
+        public IChannelPipeline GetPipeline(ChannelBase channel)
         {
             var pipeline = new ChannelPipeline(channel);
             Initialize(pipeline);

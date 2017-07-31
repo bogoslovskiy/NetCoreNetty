@@ -98,11 +98,14 @@ namespace NetCoreNetty.Sandbox
                 100 /* listenBacklog */
             );
 
-            var produceConsumeBuffer = new FastProduceConsumeBuffer<ChannelReadData>(8);
+            var inboundBuffer = new FastInboundBuffer(
+                8 /* size */,
+                1 /* consumersCount (parallelism) */
+            );
 
-            Thread consumerThread = StartConsumerThread(produceConsumeBuffer);
+            inboundBuffer.StartConsuming();
             
-            eventLoop.Bind(produceConsumeBuffer);
+            eventLoop.Bind(inboundBuffer);
             
             Task listeningTask = eventLoop.StartListeningAsync();
 
@@ -111,25 +114,6 @@ namespace NetCoreNetty.Sandbox
             Console.ReadLine();
 
             eventLoop.Shutdown();
-        }
-
-        static private Thread StartConsumerThread(FastProduceConsumeBuffer<ChannelReadData> produceConsumeBuffer)
-        {
-            var th = new Thread(
-                obj =>
-                {
-                    var buffer = (FastProduceConsumeBuffer<ChannelReadData>)obj;
-                    buffer.StartRead(ProcessChannelData);
-                }
-            );
-            th.Start(produceConsumeBuffer);
-
-            return th;
-        }
-        
-        static private void ProcessChannelData(ChannelReadData data)
-        {
-            data.ChannelPipeline.ChannelReadCallback(data.ChannelPipeline.Channel, data.ByteBuffer);
         }
     }
 }

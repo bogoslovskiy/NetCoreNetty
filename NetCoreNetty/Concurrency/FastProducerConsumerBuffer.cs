@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace NetCoreNetty.Concurrency
 {
-    public class FastProduceConsumeBuffer<TData>
+    public class FastProducerConsumerBuffer<TData>
     {
         private readonly int _size;
         
@@ -19,7 +19,7 @@ namespace NetCoreNetty.Concurrency
         private int _readInterruptStatus;
         private int _writed;
 
-        public FastProduceConsumeBuffer(int size)
+        public FastProducerConsumerBuffer(int size)
         {
             _size = size;
             
