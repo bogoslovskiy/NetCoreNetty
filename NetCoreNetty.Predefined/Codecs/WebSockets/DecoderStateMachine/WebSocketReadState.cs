@@ -37,5 +37,12 @@
             MaskingKey[2] = 0;
             MaskingKey[3] = 0;
         }
+
+        public ulong GetPayloadLen()
+        {
+            return ExtendedPayloadLen > 0
+                ? ExtendedPayloadLen
+                : PayloadLen;
+        }
     }
 }

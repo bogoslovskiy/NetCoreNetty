@@ -60,10 +60,10 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
             byte headerByte1 = byteBuf.ReadByte();
             byte headerByte2 = byteBuf.ReadByte();
 
-            state.Fin = (headerByte1 & Predefined.Codecs.WebSockets.Utils.MaskFin) == Predefined.Codecs.WebSockets.Utils.MaskFin;
-            state.OpCode = (byte) (headerByte1 & Predefined.Codecs.WebSockets.Utils.MaskOpCode);
-            state.Mask = (headerByte2 & Predefined.Codecs.WebSockets.Utils.MaskMask) == Predefined.Codecs.WebSockets.Utils.MaskMask;
-            state.PayloadLen = (byte) (headerByte2 & Predefined.Codecs.WebSockets.Utils.MaskPayloadLen);
+            state.Fin = (headerByte1 & Utils.MaskFin) == Utils.MaskFin;
+            state.OpCode = (byte) (headerByte1 & Utils.MaskOpCode);
+            state.Mask = (headerByte2 & Utils.MaskMask) == Utils.MaskMask;
+            state.PayloadLen = (byte) (headerByte2 & Utils.MaskPayloadLen);
 
             if (state.PayloadLen > 125)
             {

@@ -19,7 +19,7 @@ namespace NetCoreNetty.Codecs
             {
                 throw new ArgumentException($"Message is not {typeof(T)}.");
             }
-
+            
             // Пока объект кодируется в буфер, продолжаем отправлять буферы дальше по конвейеру.
             bool continueEncoding;
             do
@@ -28,8 +28,12 @@ namespace NetCoreNetty.Codecs
                 ctx.Write(byteBuf);
             }
             while (continueEncoding);
+
+            Reset();
         }
 
+        abstract protected void Reset();
+        
         abstract protected ByteBuf Encode(IChannelHandlerContext ctx, T message, out bool continueEncoding);
     }
 }

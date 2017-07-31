@@ -1,12 +1,33 @@
-﻿using NetCoreNetty.Buffers;
+﻿using System;
+using NetCoreNetty.Buffers;
 
 namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
 {
-    // TODO: FIN + _headerStep.
     class WebSocketReadPayloadDataStep : IWebSocketDecoderStep
     {
+        private IWebSocketDecoderStep _readHeaderStep;
+        
+        private readonly int _frameMaxSize;
+
+        private int _readIndex;
+        private int _readToIndex;
+        private WebSocketFrame _frame;
+        
+        public WebSocketReadPayloadDataStep(int frameMaxSize)
+        {
+            _frameMaxSize = frameMaxSize;
+        }
+
+        public void Init(IWebSocketDecoderStep readHeaderStep)
+        {
+            _readHeaderStep = readHeaderStep;
+        }
+        
         public void Clear()
         {
+            _readIndex = 0;
+            _readToIndex = 0;
+            _frame = null;
         }
 
         public void Read(
@@ -18,32 +39,61 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
             frame = null;
             nextStep = null;
 
-            if (byteBuf.ReadableBytes() < state.PayloadLen)
+            bool continueRead = false;
+            
+            if (_frame == null)
             {
-                return;
+                int payloadLen = (int) state.GetPayloadLen();
+                int remainPayloadLen = payloadLen - _readIndex;
+                payloadLen = Math.Min(
+                    payloadLen, 
+                    Math.Min(remainPayloadLen, _frameMaxSize)
+                );
+
+                _readToIndex = _readIndex + payloadLen - 1;
+                
+                continueRead = _readToIndex < (int)state.GetPayloadLen() - 1;
+                
+                _frame = new WebSocketFrame();
+                _frame.IsFinal = !continueRead && state.Fin;
+                _frame.Type = Utils.GetFrameType(state.OpCode);
+                _frame.Bytes = new byte[payloadLen];
             }
-
-            // TODO: alloc ByteBuf
-            byte[] frameBytes = new byte[state.PayloadLen];
-
-            // TODO: оптимизация
-            for (int i = 0; i < state.PayloadLen; i++)
+            
+            if (byteBuf.ReadableBytes() > 0)
             {
-                frameBytes[i] = byteBuf.ReadByte();
-            }
+                byte[] frameBytes = _frame.Bytes;
 
-            if (state.Mask)
-            {
-                for (int i = 0; i < frameBytes.Length; i++)
+                int i = 0;
+                while (_readIndex <= _readToIndex)
                 {
-                    frameBytes[i] ^= state.MaskingKey[i % 4];
+                    if (state.Mask)
+                    {
+                        frameBytes[i] = (byte) (byteBuf.ReadByte() ^ state.MaskingKey[_readIndex % 4]);
+                    }
+                    else
+                    {
+                        frameBytes[i] = byteBuf.ReadByte();
+                    }
+
+                    i++;
+                    _readIndex++;
+                }
+
+                if (_readIndex == _readToIndex + 1)
+                {
+                    frame = _frame;
+                    _frame = null;
+
+                    if (!continueRead)
+                    {
+                        Clear();
+                        state.Clear();
+
+                        nextStep = _readHeaderStep;
+                    }
                 }
             }
-
-            frame = new WebSocketFrame();
-            frame.IsFinal = state.Fin;
-            frame.Type = Predefined.Codecs.WebSockets.Utils.GetFrameType(state.OpCode);
-            frame.Bytes = frameBytes;
         }
     }
 }

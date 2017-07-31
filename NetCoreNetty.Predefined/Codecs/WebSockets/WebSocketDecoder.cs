@@ -8,9 +8,18 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets
     // TODO: пулинг декодера
     public class WebSocketDecoder : ByteToMessageDecoder<WebSocketFrame>
     {
+        private readonly int _frameMaxSize;
+        
         // Храним ссылку на буфер на время жизни декодера. Как только декодер будет передан в пул 
         // (если есть пуллинг декодеров) или будет финализирован сборщиком, буфер надо отдать в пул.
         private ByteBuf _byteBuf;
+
+        private WebSocketDecoderStateMachine _decoderStateMachine;
+
+        public WebSocketDecoder(int frameMaxSize)
+        {
+            _frameMaxSize = frameMaxSize;
+        }
         
         ~WebSocketDecoder()
         {
@@ -18,11 +27,11 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets
             // Буфер чтения данных при этом можно аккуратно освободить (вернуть в пул).
             _byteBuf.Release();
         }
-        
-        private readonly WebSocketDecoderStateMachine _decoderStateMachine = new WebSocketDecoderStateMachine();
 
         protected override WebSocketFrame DecodeOne(IChannelHandlerContext ctx, ByteBuf byteBuf)
         {
+            _decoderStateMachine = _decoderStateMachine ?? new WebSocketDecoderStateMachine(_frameMaxSize);
+            
             // Сохраняем ссылку на буфер, чтобы иметь возможность полностью освободить его, при деконструкции декодера.
             _byteBuf = byteBuf;
             

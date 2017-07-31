@@ -1,5 +1,4 @@
-﻿using System;
-using NetCoreNetty.Buffers;
+﻿using NetCoreNetty.Buffers;
 
 namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
 {
@@ -27,8 +26,6 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
             frame = null;
             nextStep = null;
 
-            throw new NotSupportedException();
-
             if (state.PayloadLen == 126)
             {
                 if (byteBuf.ReadableBytes() < 2)
@@ -48,14 +45,9 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
                 state.ExtendedPayloadLen = byteBuf.ReadULong();
             }
 
-            if (state.Mask)
-            {
-                nextStep = _readMaskingKeyStep;
-            }
-            else
-            {
-                nextStep = _readPayloadDataStep;
-            }
+            nextStep = state.Mask 
+                ? _readMaskingKeyStep 
+                : _readPayloadDataStep;
         }
     }
 }

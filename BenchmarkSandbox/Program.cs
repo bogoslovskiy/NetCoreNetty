@@ -39,7 +39,7 @@ namespace BenchmarkSandbox
             _messageByteBuf9 = new SimpleByteBuf(_message);
             _messageByteBuf10 = new SimpleByteBuf(_message);
 
-            _decoderStateMachine = new WebSocketDecoderStateMachine();
+            _decoderStateMachine = new WebSocketDecoderStateMachine(32);
         }
 
         [Benchmark]

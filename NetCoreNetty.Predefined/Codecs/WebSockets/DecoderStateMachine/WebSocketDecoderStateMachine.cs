@@ -14,16 +14,17 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
         private IWebSocketDecoderStep _currentStep;
         private WebSocketReadState _state;
 
-        public WebSocketDecoderStateMachine()
+        public WebSocketDecoderStateMachine(int frameMaxSize)
         {
             var readHeaderStep = new WebSocketReadHeaderStep();
             var readExtendedLenStep = new WebSocketReadExtendedPayloadLengthStep();
             var readMaskingKeyStep = new WebSocketReadMaskingKeyStep();
-            var readPayloadDataStep = new WebSocketReadPayloadDataStep();
+            var readPayloadDataStep = new WebSocketReadPayloadDataStep(frameMaxSize);
 
             readHeaderStep.Init(readExtendedLenStep, readMaskingKeyStep, readPayloadDataStep);
             readExtendedLenStep.Init(readMaskingKeyStep, readPayloadDataStep);
             readMaskingKeyStep.Init(readPayloadDataStep);
+            readPayloadDataStep.Init(readHeaderStep);
 
             _readHeaderStep = readHeaderStep;
             _readExtendedLenStep = readExtendedLenStep;
@@ -62,14 +63,8 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets.DecoderStateMachine
                     _currentStep = nextStep;
                 }
             }
-            // Прерываемся только если текущий шаг не может быть закончен (буфер закончился) или если есть фрейм.
+            // Прерываемся только если текущий шаг не закончен (буфер закончился или есть фрейм).
             while (nextStep != null && frame == null);
-
-            // Если есть фрейм, то нужно сбросить состояние, чтобы при следующем чтении начинать с исходного состояния.
-            if (frame != null)
-            {
-                Clear();
-            }
         }
     }
 }

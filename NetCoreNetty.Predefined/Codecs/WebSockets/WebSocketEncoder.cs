@@ -9,22 +9,25 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets
     // TODO: посмотреть в спецификации, требуется ли маска для серверного ответа (по-моему нет)
     public class WebSocketEncoder : MessageToByteEncoder<WebSocketFrame>
     {
+        private readonly int _frameMaxSize;
+        
+        public WebSocketEncoder(int frameMaxSize)
+        {
+            _frameMaxSize = frameMaxSize;
+        }
+        
+        protected override void Reset()
+        {
+        }
+
         protected override ByteBuf Encode(IChannelHandlerContext ctx, WebSocketFrame message, out bool continueEncoding)
         {
             // TODO: временно
             continueEncoding = false;
-            return EncodeFrame(ctx, message);
-        }
-
-        private ByteBuf EncodeFrame(IChannelHandlerContext ctx, WebSocketFrame frame)
-        {
             // TODO: пулинг + нормальная реализация
 
-            // TODO: т.к. вебсокеты работают с буферами, которые в итоге попадут прямо в канал передачи,
-            // то логично сделать так, чтобы канал определял, какой конкретный экземпляр буфера алоцировать.
-
             // TODO: RemainBytes?
-            int frameDataSize = frame.Bytes.Length;
+            int frameDataSize = message.Bytes.Length;
 
             // TODO: примерно!
             if (frameDataSize > 65536)
@@ -49,10 +52,10 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets
             // TODO: разбиение по буферам, буферы фиксированного размера.
             ByteBuf byteBuf = ctx.ChannelByteBufAllocator.GetDefault();
 
-            byte opCode = Predefined.Codecs.WebSockets.Utils.GetFrameOpCode(frame.Type);
-            if (frame.IsFinal)
+            byte opCode = Utils.GetFrameOpCode(message.Type);
+            if (message.IsFinal)
             {
-                opCode = (byte)(opCode | Predefined.Codecs.WebSockets.Utils.MaskFin);
+                opCode = (byte)(opCode | Utils.MaskFin);
             }
 
             byteBuf.Write(opCode);
@@ -107,7 +110,7 @@ namespace NetCoreNetty.Predefined.Codecs.WebSockets
             // TODO: Маска + оптимизация
             for (int i = 0; i < frameDataSize; i++)
             {
-                byteBuf.Write(frame.Bytes[i]);
+                byteBuf.Write(message.Bytes[i]);
             }
 
             return byteBuf;

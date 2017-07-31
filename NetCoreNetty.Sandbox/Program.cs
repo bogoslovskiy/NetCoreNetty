@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Threading.Tasks;
 using NetCoreNetty.Concurrency;
 using NetCoreNetty.Core;
 using NetCoreNetty.Predefined.Buffers.Unmanaged;
@@ -19,7 +18,9 @@ namespace NetCoreNetty.Sandbox
                 var frame = input as WebSocketFrame;
                 if (frame != null)
                 {
-                    Console.WriteLine("[* ws frame {0} '{1}' *]", frame.Type, frame.Text);
+                    Console.WriteLine(
+                        $"[* ws frame FIN:{frame.IsFinal} {frame.Type} '{frame.Text}' *]"
+                    );
                 }
 
                 // Проброс.
@@ -71,8 +72,8 @@ namespace NetCoreNetty.Sandbox
         {
             var fastHttpWebSocketHandshakeHandlerProvider = new FastHttpWebSocketHandshakeHandlerProvider(
                 "webSockets13",
-                new DefaultChannelHandlerProvider<WebSocketDecoder>(),
-                new DefaultChannelHandlerProvider<WebSocketEncoder>()
+                new WebSocketDecoderProvider(4 /* frameMaxSize */),
+                new WebSocketEncoderProvider(4 /* frameMaxSize */)
             );
 
             ChannelPipelineInitializerBase channelPipelineInitializer = new LambdaChannelPipelineInitializer(
