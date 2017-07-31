@@ -15,7 +15,7 @@ namespace NetCoreNetty.Concurrency
             _consumersCount = consumersCount;
         }
 
-        public void StartConsuming()
+        public void StartConsumingTask()
         {
             if (_consumerTasks != null)
             {

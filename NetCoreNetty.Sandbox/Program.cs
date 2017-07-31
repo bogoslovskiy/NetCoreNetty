@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using NetCoreNetty.Concurrency;
 using NetCoreNetty.Core;
@@ -91,29 +90,25 @@ namespace NetCoreNetty.Sandbox
             IUnmanagedByteBufAllocator unmanagedByteBufAllocator =
                 new UnmanagedByteBufAllocator();
 
-            LibuvEventLoop eventLoop = new LibuvEventLoop(
-                unmanagedByteBufAllocator,
-                channelPipelineInitializer,
-                "http://127.0.0.1:5052",
-                100 /* listenBacklog */
-            );
-
             var inboundBuffer = new FastInboundBuffer(
                 8 /* size */,
                 1 /* consumersCount (parallelism) */
             );
+            
+            var eventLoop = new LibuvEventLoop(
+                unmanagedByteBufAllocator,
+                channelPipelineInitializer,
+                inboundBuffer
+            );
 
-            inboundBuffer.StartConsuming();
-            
-            eventLoop.Bind(inboundBuffer);
-            
-            Task listeningTask = eventLoop.StartListeningAsync();
+            inboundBuffer.StartConsumingTask();
+            eventLoop.StartTask();
 
             Console.WriteLine("Listening 5052 ...");
             Console.WriteLine("Press any key to stop listening...");
             Console.ReadLine();
 
-            eventLoop.Shutdown();
+            eventLoop.Stop();
         }
     }
 }
