@@ -13,13 +13,13 @@ namespace NetCoreNetty.Core
         public IChannelPipeline ChannelPipeline { get; set; }
 
         protected ChannelBase(
-            IByteBufAllocator buteByteBufAllocator,
+            IByteBufAllocator channelByteBufAllocator,
             IInboundBuffer inboundBuffer)
         {
-            ByteBufAllocator = buteByteBufAllocator;
+            ByteBufAllocator = channelByteBufAllocator;
             InboundBuffer = inboundBuffer;
         }
-
+        
         abstract public void StartRead();
 
         abstract public void StopRead();

@@ -22,7 +22,7 @@ namespace NetCoreNetty.Predefined.Channels.Libuv
             _byteBufAllocator = byteBufAllocator;
 
             LibuvTcpHandle = new LibuvTcpHandle();
-            LibuvTcpHandle.Init(libuvEventLoop);
+            LibuvTcpHandle.Init(libuvEventLoop.LibuvLoopHandle);
         }
 
         public override void StartRead()

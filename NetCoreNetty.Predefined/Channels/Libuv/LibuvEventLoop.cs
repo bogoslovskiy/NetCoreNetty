@@ -1,69 +1,85 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
 using NetCoreNetty.Core;
 using NetCoreNetty.Libuv;
 using NetCoreNetty.Predefined.Buffers.Unmanaged;
 
 namespace NetCoreNetty.Predefined.Channels.Libuv
 {
-    public class LibuvEventLoop : LibuvLoopHandle, IChannelEventLoop
+    public class LibuvEventLoop : ChannelEventLoopBase<LibuvEventLoopOptions>
     {
         private readonly IUnmanagedByteBufAllocator _channelByteBufAllocator;
         private readonly ChannelPipelineInitializerBase _channelPipelineInitializer;
-        private readonly string _hostUrl;
-        private readonly int _listenBacklog;
-        
+
+        public LibuvLoopHandle LibuvLoopHandle { get; private set; }
+        private LibuvAsyncHandle _closeLoopHandle;
         private LibuvTcpHandle _serverTcpHandle;
         private List<LibuvTcpServerChannel> _clientTcpHandles = new List<LibuvTcpServerChannel>();
 
-        private IInboundBuffer _inboundBuffer;
-        
         public LibuvEventLoop(
             IUnmanagedByteBufAllocator channelByteBufAllocator,
             ChannelPipelineInitializerBase channelPipelineInitializer,
-            string hostUrl,
-            int listenBacklog)
+            IInboundBuffer inboundBuffer)
+            : base(inboundBuffer)
         {
             _channelByteBufAllocator = channelByteBufAllocator;
             _channelPipelineInitializer = channelPipelineInitializer;
-            _hostUrl = hostUrl;
-            _listenBacklog = listenBacklog;
         }
 
-        public void Bind(IInboundBuffer inboundBuffer)
+        protected override void StartCore()
         {
-            _inboundBuffer = inboundBuffer;
-        }
-
-        public async Task StartListeningAsync()
-        {
-            await Task.Factory.StartNew(StartListening);
-        }
-
-        public void Shutdown()
-        {
-            Stop();
-        }
-
-        private void StartListening()
-        {
-            Init();
-
-            _serverTcpHandle = new LibuvTcpHandle();
-            _serverTcpHandle.Init(this);
-
-            _serverTcpHandle.Bind(ServerAddress.FromUrl(_hostUrl));
-            _serverTcpHandle.Listen(_listenBacklog /* backLog */, ConnectionCallback);
+            if (LibuvLoopHandle != null)
+            {
+                throw new Exception();
+            }
             
-            RunDefault();
+            LibuvLoopHandle = new LibuvLoopHandle();
+            LibuvLoopHandle.Init();
+            
+            _closeLoopHandle = new LibuvAsyncHandle();
+            _closeLoopHandle.Init(LibuvLoopHandle, StopLoopCallback);
+            
+            _serverTcpHandle = new LibuvTcpHandle();
+            _serverTcpHandle.Init(LibuvLoopHandle);
+
+            _serverTcpHandle.Bind(ServerAddress.FromUrl(this.Options.Uri));
+            _serverTcpHandle.Listen(this.Options.ListenBacklog /* backLog */, ConnectionCallback);
+            
+            LibuvLoopHandle.RunDefault();
         }
 
+        protected override void StopCore()
+        {
+            if (_closeLoopHandle == null)
+            {
+                throw new InvalidOperationException();
+            }
+            
+            // Signal to the loop to stop it with associated async handle callback.
+            _closeLoopHandle.Send();
+        }
+
+        protected override void InitializeDefaultOptions(LibuvEventLoopOptions options)
+        {
+            options.Uri = "http://127.0.0.1:5052";
+            options.ListenBacklog = 100;
+        }
+
+        private void StopLoopCallback(IntPtr asyncHandle)
+        {
+            // TODO: !!!
+            // Close all clientTcpHandles.
+            // Stop loop
+            // Close loop
+            // Dispose
+        }
+        
         private void ConnectionCallback(LibuvStreamHandle streamHandle, int status)
         {
             var libuvTcpServerChannel = new LibuvTcpServerChannel(
                 this,
                 _channelByteBufAllocator,
-                _inboundBuffer
+                InboundBuffer
             );
 
             // TODO: тут все принципы проектирования нарушены. по возможности порефакторить.
